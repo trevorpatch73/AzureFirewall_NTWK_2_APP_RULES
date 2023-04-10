@@ -8,10 +8,8 @@ terraform {
 provider "azurerm" {
   features {}
 }
-resource "azurerm_resource_group" "MAC_UE_TENANT_PROD_NETOPS_RG" {
-  name     = "MAC-UE-TENANT-PROD-NETOPS-RG"
-  location = "East US"
-}
+
+// Variables
 variable "MyAppAdmin" {
   type    = string
   default = "MyAppAdmin"
@@ -24,6 +22,17 @@ variable "MyAppAdminVmSize" {
   type    = string
   default = "Standard_A2_v2"
 }
+
+// Global
+resource "azurerm_resource_group" "MAC_UE_TENANT_PROD_MY_APP_RG" {
+  name     = "MAC-UE-TENANT-PROD-MY-APP-RG"
+  location = "East US"
+}
+resource "azurerm_resource_group" "MAC_UE_TENANT_PROD_NETOPS_RG" {
+  name     = "MAC-UE-TENANT-PROD-NETOPS-RG"
+  location = "East US"
+}
+
 // Hub
 resource "azurerm_virtual_network" "MAC_UE_TENANT_HUB_PROD_VNET" {
   name                = "MAC-UE-TENANT-HUB-PROD-VNET"
@@ -231,11 +240,7 @@ resource "azurerm_virtual_network_peering" "MAC_UE_TENANT_PROD_BASTION_PEER_SPOK
   use_remote_gateways          = true
 }
 
-// Global
-resource "azurerm_resource_group" "MAC_UE_TENANT_PROD_MY_APP_RG" {
-  name     = "MAC-UE-TENANT-PROD-MY-APP-RG"
-  location = "East US"
-}
+
 
 // Bastion
 resource "azurerm_public_ip" "MAC_UE_TENANT_PROD_BASTION_01_PIP" {
