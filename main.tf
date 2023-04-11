@@ -130,6 +130,31 @@ resource "azurerm_firewall" "MAC_UE_TENANT_HUB_PROD_AZURE_FIREWALL" {
     public_ip_address_id = azurerm_public_ip.MAC_UE_TENANT_HUB_PROD_AZURE_FW_MGMT_PIP.id
   }
 }
+resource "azurerm_log_analytics_workspace" "MAC_UE_TENANT_HUB_PROD_WORKSPACE" {
+  name                = "MAC-UE-TENANT-HUB-PROD-WORKSPACE"
+  location            = azurerm_resource_group.MAC_UE_TENANT_PROD_NETOPS_RG.location
+  resource_group_name = azurerm_resource_group.MAC_UE_TENANT_PROD_NETOPS_RG.name
+  sku = "PerGB2018"
+}
+
+resource "azurerm_monitor_diagnostic_setting" "MAC_UE_TENANT_HUB_PROD_AZURE_FIREWALL_LOGS" {
+  name                        = "MAC-UE-TENANT-HUB-PROD-AZURE-FIREWALL-LOGS"
+  target_resource_id          = azurerm_firewall.MAC_UE_TENANT_HUB_PROD_AZURE_FIREWALL.id
+  log_analytics_workspace_id  = azurerm_log_analytics_workspace.MAC_UE_TENANT_HUB_PROD_WORKSPACE.id
+  log {
+    category = "AzureFirewallApplicationRule"
+    enabled  = true
+  }
+  log {
+    category = "AzureFirewallNetworkRule"
+    enabled  = true
+  }
+  metric {
+    category = "AllMetrics"
+    enabled  = true
+  }
+}
+
 resource "azurerm_firewall_policy_rule_collection_group" "MAC_UE_TENANT_HUB_PROD_AZURE_FIREWALL_POL_RCG" {
   name               = "MAC-UE-TENANT-HUB-PROD-AZURE-FIREWALL-POL-RCG"
   firewall_policy_id = azurerm_firewall_policy.MAC_UE_TENANT_HUB_PROD_AZURE_FIREWALL_POL.id
