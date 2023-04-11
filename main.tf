@@ -136,8 +136,8 @@ resource "azurerm_firewall_policy_rule_collection_group" "MAC_UE_TENANT_HUB_PROD
   priority           = 500
   
     network_rule_collection {
-    name     = "LAYER_4_RULES"
-    priority = 400
+    name     = "CORE_SERVICES"
+    priority = 500
     action   = "Allow"
 
     rule {
