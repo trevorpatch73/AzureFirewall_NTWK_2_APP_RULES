@@ -141,19 +141,81 @@ resource "azurerm_monitor_diagnostic_setting" "MAC_UE_TENANT_HUB_PROD_AZURE_FIRE
   name                        = "MAC-UE-TENANT-HUB-PROD-AZURE-FIREWALL-LOGS"
   target_resource_id          = azurerm_firewall.MAC_UE_TENANT_HUB_PROD_AZURE_FIREWALL.id
   log_analytics_workspace_id  = azurerm_log_analytics_workspace.MAC_UE_TENANT_HUB_PROD_WORKSPACE.id
-  log {
+  enabled_log {
     category = "AzureFirewallApplicationRule"
-    enabled  = true
+    retention_policy {
+      enabled = false
+    }
   }
-  log {
+  enabled_log {
     category = "AzureFirewallNetworkRule"
-    enabled  = true
+    retention_policy {
+      enabled = false
+    }
   }
   metric {
     category = "AllMetrics"
     enabled  = true
   }
 }
+
+/*
+// SOLUTION
+resource "azurerm_firewall_policy_rule_collection_group" "MAC_UE_TENANT_HUB_PROD_AZFW_APP_POL_RCG" {
+  name               = "MAC-UE-TENANT-HUB-PROD-AZFW-APP-POL-RCG"
+  firewall_policy_id = azurerm_firewall_policy.MAC_UE_TENANT_HUB_PROD_AZURE_FIREWALL_POL.id
+  priority           = 400
+
+  application_rule_collection{
+    name            = "L7_OUTBOUND_RULES"
+    action          = "Allow"
+    priority        = 400
+    
+    rule {
+      name              = "HTTP_HTTPS_GOOGLE"
+      protocols {
+        type = "Http"
+        port = 80
+      }
+      protocols {
+        type = "Https"
+        port = 443
+      }      
+      source_addresses  = ["30.0.0.0/8"]
+      destination_fqdns = ["*google.com"]
+    }
+    
+  }
+}
+
+resource "azurerm_firewall_policy_rule_collection_group" "MAC_UE_TENANT_HUB_PROD_AZURE_FIREWALL_POL_RCG" {
+  name               = "MAC-UE-TENANT-HUB-PROD-AZURE-FIREWALL-POL-RCG"
+  firewall_policy_id = azurerm_firewall_policy.MAC_UE_TENANT_HUB_PROD_AZURE_FIREWALL_POL.id
+  priority           = 500
+
+  network_rule_collection {
+    name     = "CORE_SERVICES"
+    priority = 500
+    action   = "Allow"
+
+    rule {
+      name                  = "PING"
+      protocols             = ["ICMP"]
+      source_addresses      = ["*"]
+      destination_addresses = ["*"]
+      destination_ports     = ["*"]
+    }
+
+    rule {
+      name                  = "SSH"
+      protocols             = ["TCP"]
+      source_addresses      = azurerm_virtual_network.MAC_UE_TENANT_PROD_BASTION_VNET.address_space
+      destination_addresses = ["30.0.0.0/8"]
+      destination_ports     = ["22"]
+    }
+  }
+}
+*/
 
 resource "azurerm_firewall_policy_rule_collection_group" "MAC_UE_TENANT_HUB_PROD_AZURE_FIREWALL_POL_RCG" {
   name               = "MAC-UE-TENANT-HUB-PROD-AZURE-FIREWALL-POL-RCG"
